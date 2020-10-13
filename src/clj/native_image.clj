@@ -16,7 +16,9 @@
 (set! *warn-on-reflection* true)
 
 
-(def ^:dynamic *level* :debug) ; :debug :info :warn :error
+(def ^:dynamic *level*
+  (let [level (keyword (System/getProperty "clj.native-image.log.level"))]
+    (or (#{:debug :info :warn :error} (keyword level)) :debug))) ;
 
 
 ;;
