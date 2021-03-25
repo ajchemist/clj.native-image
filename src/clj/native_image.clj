@@ -135,7 +135,7 @@
 
 
 (defn build-x
-  [{:keys [deps-file aliases main compile-path bin args]}]
+  [{:keys [deps-file aliases main libs compile-path bin args]}]
   (let [deps-dir     (if deps-file
                        (-> (jio/file deps-file) (.getCanonicalFile) (.getParentFile))
                        deps.dir/*the-dir*)
@@ -144,8 +144,10 @@
         classpath    (make-classpath deps-file aliases)]
     (deps.dir/with-dir deps-dir
       (clean compile-path)
-      (when (#{:debug :info} *level*)
-        (println "Compiling" main))
+      (when-not (empty? libs)
+        (when (#{:debug :info} *level*) (println "Compiling Libs"))
+        (run! #(compile (symbol %)) libs))
+      (when (#{:debug :info} *level*) (println "Compiling" main))
       (compile (symbol main))
       (when-not bin
         (binding [*out* *err*]
